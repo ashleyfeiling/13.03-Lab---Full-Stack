@@ -53,4 +53,47 @@ router.post('/delete', function (req, res, next) {
     }
 });
 
+router.post('/update-task', function (req, res, next) {
+    const { id, task } = req.body;
+    
+    // Backend validation: Don't allow blank task
+    if (!task || task.trim() === '') {
+        return res.redirect('/'); // Or render an error message
+    }
+
+    try {
+      req.db.query('UPDATE todos SET task = ? WHERE id = ?;', [task, id], (err, results) => {
+        if (err) {
+          console.error('Error updating todo task:', err);
+          return res.status(500).send('Error updating todo task');
+        }
+        console.log('Todo task updated successfully:', results);
+        res.redirect('/');
+      });
+    } catch (error) {
+      console.error('Error updating todo task:', error);
+      res.status(500).send('Error updating todo task');
+    }
+});
+
+router.post('/complete', function (req, res, next) {
+    const { id, completed } = req.body;
+    // Toggle logic: completed field is an integer (0 or 1)
+    const newStatus = completed === '1' ? 0 : 1; 
+
+    try {
+      req.db.query('UPDATE todos SET completed = ? WHERE id = ?;', [newStatus, id], (err, results) => {
+        if (err) {
+          console.error('Error toggling todo status:', err);
+          return res.status(500).send('Error toggling todo status');
+        }
+        console.log('Todo status toggled successfully:', results);
+        res.redirect('/');
+      });
+    } catch (error) {
+      console.error('Error toggling todo status:', error);
+      res.status(500).send('Error toggling todo status');
+    }
+});
+
 module.exports = router;

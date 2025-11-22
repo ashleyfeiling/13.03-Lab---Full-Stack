@@ -4,20 +4,27 @@ block content
   h1= title
   p Welcome to #{title}
   ol
+  // iterate through the tasks list
   each val in todos
-    li
-      span= val.task + ' - '
-      if val.completed > 0
-        span Completed
-      else
-        pan Not Completed
+    li.todo-item(class=val.completed ? 'completed' : '', data-id=val.id)
+      form(method='POST' action='/complete')
+        input(type='hidden', name='id', value=val.id)
+        input(type='hidden', name='completed', value=val.completed ? '1' : '0')
+        input(type='checkbox', name='completed', checked=val.completed ? true : false, onchange='this.form.submit()')
+        span=val.completed ? 'Completed' : 'Not Completed'
+      
       form(method='POST' action='/delete')
         input(type='hidden', name='id', value=val.id)
-        button(type='submit') Delete
+        button.delete-btn(type='submit') Delete
+
+      form(method='POST' action='/update-task' style='display:inline-block;')
+        input(type='hidden', name='id', value=val.id)
+        input.task-input(type='text', name='task', value=val.task, required)
+        button.edit-btn(type='submit') Save Edit
 
   hr
   h2 Add a new task
-  form(method='POST' action='/create')
+  form.create-form(method='POST' action='/create')
     label(for='task') Task:
     input(type='text', name='task', id='task', required)
     button(type='submit') Create Task
